@@ -1,0 +1,90 @@
+Copy ALL fourteen .h/.cpp files into your existing Arduino sketch folder,
+including cgpt_ex_cyd_touch.h/.cpp and the four bundled SoftSPI/XPT2046 files.
+Read CYD_TOUCH_GUIDE.md for the touch migration steps before using SD.
+
+Add this include at the top of your existing sketch:
+
+    #include "cgpt_ex_robot_arm.h"
+
+At the end of your existing setup(), AFTER Wire.begin(), lv_init(),
+and display/touch registration:
+
+    if (!cgpt_ex_begin()) {
+        Serial.println("Robot arm initialization failed");
+    }
+
+In your existing loop(), in the same thread/context as LVGL:
+
+    cgpt_ex_service();
+    lv_timer_handler();
+
+cgpt_ex_begin() now shows the chip-information startup screen. Tap OK to
+enter the controls. Keep calling your existing LVGL handler while it is shown.
+The chips use addresses 0x63 (servos) and 0x64 (inputs). Servo/joystick
+channels use pins 0..5. Four debounced physical buttons connect pin to GND:
+  Store:    0x64 pin 7 (existing)
+  Previous: 0x64 pin 6
+  Next:     0x63 pin 6
+  Delete:   0x63 pin 7
+All use inversion, weak pull-up, and 30 ms chip-side debounce.
+Read PHYSICAL_EDITING_GUIDE.md for editing behavior and CSV recovery files.
+
+On ESP32, SD support is enabled automatically:
+  New     -> Open next ARM00001.csv, ARM00002.csv, etc. Header only.
+  Capture -> Save ONE pose with default move_ms=1500; insert while editing.
+  Physical Store -> Same one-point capture/insertion action.
+  Stop    -> Close file without adding a point, or exit playback/editing.
+  Files   -> Select a root CSV file and play it.
+  Play    -> Replay the selected CSV. Loop controls repetition.
+
+No automatic motion sampling is performed. Normal loop service, joystick
+movement, New, and Stop do not append positions.
+Each point's move_ms can be changed later on the PC.
+Sample CSV and exact header/order: example_motion.csv.
+
+The default SD mount reserves VSPI (CS5/SCK18/MISO19/MOSI23). The TFT should
+use HSPI and the touchscreen should use software SPI. See CSV_SD_GUIDE.md.
+If your sketch already mounts the global SD object with compatible drivers,
+set cgpt_ex_mountSdInternally=0 and mount SD before cgpt_ex_begin().
+
+To compile without attached joysticks, edit cgpt_ex_config.h:
+
+    #define cgpt_ex_enableJoysticks 0
+
+Use 1 when attached. This excludes ADC initialization/polling/jogging but
+keeps both chips and all four physical buttons active. Define this in the
+common configuration header or globally for the entire build, not only in
+your .ino file.
+
+Keep your existing LVGL tick source (lv_tick_inc or lv_tick_set_cb).
+Do not initialize LVGL, display, or Wire a second time.
+Remove old hardware touch initialization/polling; cgpt_ex_begin() installs
+the new software touch reader, reusing the existing LVGL pointer device.
+Do not register another pointer input after cgpt_ex_begin().
+Do not also call cgpt_ex_readJoysticks(): cgpt_ex_service() calls it.
+
+Optional, before recording poses:
+
+    cgpt_ex_setRecordTiming(2000, 750); // CSV: 2 s move; dwell applies only to RAM.
+    cgpt_ex_setLoop(true);
+
+Optional commands from elsewhere in your sketch (same thread as LVGL):
+
+    cgpt_ex_setPosition(0, 32768); // base; cancels playback, clamps to limits
+    cgpt_ex_storePose();          // same function both Store buttons use
+    cgpt_ex_startPlayback();
+    cgpt_ex_stopPlayback();
+
+SD APIs, after startup OK:
+
+    cgpt_ex_newCsvCapture(); // Header only.
+    cgpt_ex_capturePoint(); // One saved pose.
+    cgpt_ex_finishCsvCapture(); // Close only.
+    cgpt_ex_startCsvPlayback("example_motion.csv");
+
+Movement/recording commands are accepted after startup OK. For automated
+integration you can use cgpt_ex_dismissStartup() instead of tapping OK.
+
+No setup() or loop() is supplied because these already exist in your sketch.
+Every variable/function/type created by this example uses cgpt_ex_.
+Arduino/LVGL/Serial Wombat identifiers belong to their existing libraries.
