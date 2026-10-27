@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created by SaveAsSVG AddIn Version 1.426 for Fusion 360 (https://icarussoftlandings.com/app/product/saveassvg/) -->
+<svg xmlns="http://www.w3.org/2000/svg"
+  width="854.1732283px"
+  height="151.1811024px"
+  version="1.1"
+  id="svg2"
+  viewBox="0 -0 854.1732283 151.1811024">
+  <g>
+    <!-- Perimeter -->
+      <path
+        fill="none"
+        style="stroke:rgb(0,0,0);stroke-width:0.378;vector-effect:non-scaling-stroke"
+        transform="matrix(1,0,0,-1,427.12442,29.80508239999999)"
+        d="M -415.08661 -121.33823 L 415.08661,-121.33823 L 415.08661,-70.96342 A 0.0189 0.0189,0,0, 0, 415.10551 -70.94453 L 427.08661,-70.94453 L 427.08661,-20.55082 L 415.10551,-20.55082 A 0.0189 0.0189,0,0, 0, 415.08661 -20.53193 L 415.08661,29.84288 L -415.08661,29.84288 L -415.08661,-20.53193 A 0.0189 0.0189,0,0, 0, -415.10551 -20.55082 L -427.08661,-20.55082 L -427.08661,-70.94453 L -415.10551,-70.94453 A 0.0189 0.0189,0,0, 0, -415.08661 -70.96342 Z  " />
+  </g>
+</svg>
